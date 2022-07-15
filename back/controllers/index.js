@@ -10,30 +10,36 @@ const postForm = async (req, res) =>{
         info,
         age
     } = req.body
-
-    if(!name || !email) return res.status(400).json('🔴 Os campos NOME e EMAIL são obrigatórios!')
     
-    const newUser = new User({
-        name,
-        email,
-        stack,
-        gender,
-        info,
-        age
-    })
-
-    const fileJSON = await fs.readFile('users.json')
-    const userJSON = JSON.parse(fileJSON)
-
+    try{
+        if(!name || !email) return res.status(400).json('Os campos NOME e EMAIL são obrigatórios!')
+        
+        const newUser = new User({
+            name,
+            email,
+            stack,
+            gender,
+            info,
+            age
+        })
+        
+        const fileJSON = await fs.readFile('users.json')
+        const userJSON = JSON.parse(fileJSON)
     
-    userJSON.push(newUser)
-
-    const usersJSON = JSON.stringify(userJSON)
-    await fs.writeFile('users.json', usersJSON) 
-
-
-    const save = await newUser.save()
-    return res.json('Usuario cadastrado com sucesso ✅')
+        const hasEmail = userJSON.find(user => user.email === newUser.email)
+        if (hasEmail) return res.status(400).json('email já cadastrado!')
+         
+        userJSON.push(newUser) 
+    
+        const usersJSON = JSON.stringify(userJSON)
+        await fs.writeFile('users.json', usersJSON) 
+    
+    
+        const save = await newUser.save()
+        return res.json('Usuário cadastrado com sucesso!')
+    } catch(error){
+        return res.status(400).json(error.message)
+    }
 }
 
 module.exports = { postForm }

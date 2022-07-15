@@ -7,6 +7,8 @@ import api from '../../services/api'
 function Register() {
     const [form, setForm] = useState({ name: '', email: '', stack: [], gender: '', info: '',  age: '18' })
     const [error, setError] = useState(false)
+    const [backMessage, setBackMessage] = useState(false)
+    const [message, setMessage] = useState('')
 
     const handleChange = e => {
         const key = e.target.name
@@ -62,12 +64,21 @@ function Register() {
                 info: form.info,
                 age: form.age
             })
-            console.log(response.data)
+            setMessage(response.data)
+            setBackMessage(true)
+            setTimeout(() => {
+                window.location.reload()
+            }, 3000)
         } catch (error) {
             console.log(error.response.data)
+            setMessage(error.response.data)
+            setBackMessage(true)
+            setTimeout(() => {
+                setBackMessage(false)
+                window.location.reload()
+            }, 3000)
         }
-        alert('Dev cadastrado com sucesso! ✅')
-        window.location.reload()
+
     }
 
     return (
@@ -173,7 +184,7 @@ function Register() {
                 </Form.Group>
 
                 <>
-                    <h1 className='title__form'>Idade:{form.age === '65' ? '65+' : form.age}</h1>
+                    <h1 className='title__form'>Idade: {form.age === '65' ? '65+' : form.age}</h1>
                     <Form.Range
                         className='mb-3'
                         name='age'
@@ -191,6 +202,7 @@ function Register() {
                 </Button>
 
                 {error && <span className='error'>Todos os campos são obrigatórios</span>}
+                {backMessage && <span className={error ? 'error' : 'sucess'}>{message}</span>}
             </Form>
 
         </div>
